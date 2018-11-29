@@ -58,8 +58,22 @@ class GameScene: SKScene {
     }
     
     fileprivate func animateCrocodile() {
+        let durationOpen = drand48() + 2    //random double in the range 2 to 3
+        let open: SKAction = SKAction.setTexture(SKTexture(imageNamed: ImageName.CrocMouthOpen))
+        let waitOpen: SKAction = SKAction()
+        waitOpen.duration = durationOpen
+        
+        let durationClosed = drand48() * 2 + 3 //random double in the range 3 to 5
+        let close: SKAction = SKAction.setTexture(SKTexture(imageNamed: ImageName.CrocMouthClosed))
+        let waitClosed: SKAction = SKAction()
+        waitClosed.duration = durationClosed
+        
+        let sequence: SKAction = SKAction.sequence([waitOpen, open, waitClosed, close])
+        let loop: SKAction = SKAction.repeatForever(sequence)
+        crocodile.run(loop)
         
     }
+    
     fileprivate func runNomNomAnimationWithDelay(_ delay: TimeInterval) { }
     
     //MARK: - Touch handling
