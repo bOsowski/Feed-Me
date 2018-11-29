@@ -1,7 +1,7 @@
 import SpriteKit
 
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate{
     
     private var crocodile: SKSpriteNode!
     private var prize: SKSpriteNode!
@@ -9,15 +9,20 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         //setUpPhysics()
         setUpScenery()
-        //setUpPrize()
-        //setUpVines()
+        setUpPrize()
+        setUpVines()
         setUpCrocodile()
         //setUpAudio()
     }
     
     //MARK: - Level setup
     
-    fileprivate func setUpPhysics() { }
+    fileprivate func setUpPhysics() {
+        physicsWorld.contactDelegate = self
+        physicsWorld.gravity = CGVector(dx: 0.0, dy: -9.8)
+        physicsWorld.speed = 1.0
+    }
+    
     fileprivate func setUpScenery() {
         let background:SKSpriteNode = SKSpriteNode(imageNamed: ImageName.Background)
         background.position = CGPoint(x: 0,y: 0)
@@ -35,24 +40,57 @@ class GameScene: SKScene {
         addChild(water)
     }
     
-    fileprivate func setUpPrize() { }
+    fileprivate func setUpPrize() {
+        prize = SKSpriteNode(imageNamed: ImageName.Prize)
+        prize.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: ImageName.PrizeMask), size: prize.size)
+        prize.position = CGPoint(x: self.size.width * 0.5, y: self.size.height * 0.7)
+        prize.zPosition = Layer.Prize
+        prize.physicsBody!.usesPreciseCollisionDetection = true
+        prize.physicsBody!.collisionBitMask = 0
+        prize.physicsBody!.categoryBitMask = PhysicsCategory.Prize
+        prize.physicsBody!.contactTestBitMask = PhysicsCategory.Crocodile
+        prize.physicsBody!.density = 1
+        prize.physicsBody!.isDynamic = true
+        addChild(prize)
+    }
     
     //MARK: - Vine methods
     
-    fileprivate func setUpVines() { }
+    fileprivate func setUpVines() {
+        // 1 load vine data
+        let dataFile = Bundle.main.path(forResource: GameConfiguration.VineDataFile, ofType: nil)
+        let vines = NSArray(contentsOfFile: dataFile!) as! [NSDictionary]
+        
+        // 2 add vines
+        for i in 0..<vines.count {
+            // 3 create vine
+            let vineData = vines[i]
+            let length = Int(truncating: vineData["length"] as! NSNumber)
+            let relAnchorPoint = NSCoder.cgPoint(for: vineData["relAnchorPoint"] as! String)
+            let anchorPoint = CGPoint(x: relAnchorPoint.x * size.width,
+                                      y: relAnchorPoint.y * size.height)
+            let vine = VineNode(length: length, anchorPoint: anchorPoint, name: "\(i)")
+            
+            // 4 add to scene
+            vine.addToScene(self)
+            
+            // 5 connect the other end of the vine to the prize
+            vine.attachToPrize(prize)
+        }
+    }
     
     //MARK: - Croc methods
     
     fileprivate func setUpCrocodile() {
         crocodile = SKSpriteNode(imageNamed: ImageName.CrocMouthClosed)
-        crocodile.physicsBody = SKPhysicsBody()
+        crocodile.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: ImageName.CrocMask), size: crocodile.size)
         crocodile.position = CGPoint(x: self.size.width * 0.75, y: self.size.height * 0.312)
         crocodile.zPosition = Layer.Crocodile
-        crocodile.physicsBody?.usesPreciseCollisionDetection = true
-        crocodile.physicsBody?.categoryBitMask = 0
-        crocodile.physicsBody?.categoryBitMask = PhysicsCategory.Crocodile
-        crocodile.physicsBody?.contactTestBitMask = PhysicsCategory.Prize
-        crocodile.physicsBody?.isDynamic = false
+        crocodile.physicsBody!.usesPreciseCollisionDetection = true
+        crocodile.physicsBody!.collisionBitMask = 0
+        crocodile.physicsBody!.categoryBitMask = PhysicsCategory.Crocodile
+        crocodile.physicsBody!.contactTestBitMask = PhysicsCategory.Prize
+        crocodile.physicsBody!.isDynamic = false
         addChild(crocodile)
         animateCrocodile()
     }
