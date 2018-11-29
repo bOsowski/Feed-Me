@@ -7,12 +7,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     private var prize: SKSpriteNode!
     
     override func didMove(to view: SKView) {
-        //setUpPhysics()
+        setUpPhysics()
         setUpScenery()
         setUpPrize()
         setUpVines()
         setUpCrocodile()
-        //setUpAudio()
+        setUpAudio()
     }
     
     //MARK: - Level setup
@@ -112,7 +112,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         
     }
     
-    fileprivate func runNomNomAnimationWithDelay(_ delay: TimeInterval) { }
+    fileprivate func runNomNomAnimationWithDelay(_ delay: TimeInterval) {
+        crocodile.removeAllActions()
+        
+        let closeMouth = SKAction.setTexture(SKTexture(imageNamed: ImageName.CrocMouthClosed))
+        let wait = SKAction.wait(forDuration: delay)
+        let openMouth = SKAction.setTexture(SKTexture(imageNamed: ImageName.CrocMouthOpen))
+        let sequence = SKAction.sequence([closeMouth, wait, openMouth, wait, closeMouth])
+        
+        crocodile.run(sequence)
+    }
     
     //MARK: - Touch handling
     
@@ -140,7 +149,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     override func update(_ currentTime: TimeInterval) { }
     
-    func didBegin(_ contact: SKPhysicsContact) { }
+    func didBegin(_ contact: SKPhysicsContact) {
+        if (contact.bodyA.node == crocodile && contact.bodyB.node == prize)
+            || (contact.bodyA.node == prize && contact.bodyB.node == crocodile) {
+            
+            // shrink the pineapple away
+            let shrink = SKAction.scale(to: 0, duration: 0.08)
+            runNomNomAnimationWithDelay(0.15)
+            let removeNode = SKAction.removeFromParent()
+            let sequence = SKAction.sequence([shrink, removeNode])
+            prize.run(sequence)
+        }
+    }
     
     fileprivate func checkIfVineCutWithBody(_ body: SKPhysicsBody) {
         let node = body.node!
@@ -157,6 +177,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 let sequence = SKAction.sequence([fadeAway, removeNode])
                 node.run(sequence)
             })
+            
+            crocodile.removeAllActions()
+            crocodile.texture = SKTexture(imageNamed: ImageName.CrocMouthOpen)
+            animateCrocodile()
         }
     }
     
