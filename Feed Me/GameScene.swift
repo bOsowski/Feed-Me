@@ -147,7 +147,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     //MARK: - Game logic
     
-    override func update(_ currentTime: TimeInterval) { }
+    override func update(_ currentTime: TimeInterval) {
+        if prize.position.y <= 0 {
+            switchToNewGameWithTransition(SKTransition.fade(withDuration: 1.0))
+        }
+    }
     
     func didBegin(_ contact: SKPhysicsContact) {
         if (contact.bodyA.node == crocodile && contact.bodyB.node == prize)
@@ -156,6 +160,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             // shrink the pineapple away
             let shrink = SKAction.scale(to: 0, duration: 0.08)
             runNomNomAnimationWithDelay(0.15)
+            // transition to next level
+            switchToNewGameWithTransition(SKTransition.doorway(withDuration: 1.0))
             let removeNode = SKAction.removeFromParent()
             let sequence = SKAction.sequence([shrink, removeNode])
             prize.run(sequence)
@@ -184,7 +190,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         }
     }
     
-    fileprivate func switchToNewGameWithTransition(_ transition: SKTransition) { }
+    fileprivate func switchToNewGameWithTransition(_ transition: SKTransition) {
+        let delay = SKAction.wait(forDuration: 1)
+        let sceneChange = SKAction.run({
+            let scene = GameScene(size: self.size)
+            self.view?.presentScene(scene, transition: transition)
+        })
+        
+        run(SKAction.sequence([delay, sceneChange]))
+    }
     
     //MARK: - Audio
     
