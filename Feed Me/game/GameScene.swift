@@ -5,7 +5,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     private var crocodile: SKSpriteNode!
     private var prize: SKSpriteNode!
-    private static var backgroundMusicPlayer: AVAudioPlayer!
     
     private var sliceSoundAction: SKAction!
     private var splashSoundAction: SKAction!
@@ -231,23 +230,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     //MARK: - Audio
     
     fileprivate func setUpAudio() {
-        if GameScene.backgroundMusicPlayer == nil {
-            let backgroundMusicURL = Bundle.main.url(forResource: SoundFile.BackgroundMusic, withExtension: nil)
-            
-            do {
-                let theme = try AVAudioPlayer(contentsOf: backgroundMusicURL!)
-                GameScene.backgroundMusicPlayer = theme
-                
-            } catch {
-                // couldn't load file :[
-            }
-            
-            GameScene.backgroundMusicPlayer.numberOfLoops = -1
-        }
-        
-        if !GameScene.backgroundMusicPlayer.isPlaying {
-            GameScene.backgroundMusicPlayer.play()
-        }
+        playMusic()
         
         sliceSoundAction = SKAction.playSoundFileNamed(SoundFile.Slice, waitForCompletion: false)
         splashSoundAction = SKAction.playSoundFileNamed(SoundFile.Splash, waitForCompletion: false)
