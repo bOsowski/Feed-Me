@@ -10,6 +10,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     private var splashSoundAction: SKAction!
     private var nomNomSoundAction: SKAction!
     
+    private var hearts: [SKSpriteNode?] = []
+    private var levelLabel: SKLabelNode!
+    
+    private var level: Int = 1{
+        didSet{
+            levelLabel.text = "Level: \(level)"
+        }
+    }
+
+    
     private var levelOver = false
     private var vineCut = false
     
@@ -19,7 +29,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         setUpPrize()
         setUpVines()
         setUpCrocodile()
+        setUpHUD()
         setUpAudio()
+    }
+    
+    //MARK: - HUD setup
+    
+    fileprivate func setUpHUD() {
+        levelLabel = SKLabelNode(text: "Level: \(level)")
+        levelLabel.fontSize = 62
+        levelLabel.position = CGPoint(x: 150, y: 1240)
+        levelLabel.zPosition = Layer.HUD
+        addChild(levelLabel)
+        let firstHeart = SKSpriteNode(imageNamed: ImageName.Heart)
+        let secondHeart = SKSpriteNode(imageNamed: ImageName.Heart)
+        let thirdHeart = SKSpriteNode(imageNamed: ImageName.Heart)
+        firstHeart.position = CGPoint(x: 650, y: 1260)
+        secondHeart.position = CGPoint(x: 575, y: 1260)
+        thirdHeart.position = CGPoint(x: 500, y: 1260)
+        hearts.append(firstHeart)
+        hearts.append(secondHeart)
+        hearts.append(thirdHeart)
+        hearts.forEach({heart in
+            heart!.zPosition = Layer.HUD
+            addChild(heart!)
+        })
+        
     }
     
     //MARK: - Level setup
@@ -116,7 +151,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         let sequence: SKAction = SKAction.sequence([waitOpen, open, waitClosed, close])
         let loop: SKAction = SKAction.repeatForever(sequence)
         crocodile.run(loop)
-        
     }
     
     fileprivate func runNomNomAnimationWithDelay(_ delay: TimeInterval) {
@@ -128,7 +162,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         let sequence = SKAction.sequence([closeMouth, wait, openMouth, wait, closeMouth])
         
         crocodile.run(sequence)
-        levelOver = true
     }
     
     //MARK: - Touch handling
@@ -155,19 +188,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) { }
     
-    fileprivate func showMoveParticles(touchPosition: CGPoint) { }
+    fileprivate func showMoveParticles(touchPosition: CGPoint) {
+        //todo: create particles
+    }
     
     //MARK: - Game logic
     
     override func update(_ currentTime: TimeInterval) {
-        if levelOver { return }
+        if levelOver {
+            switchToNewGameWithTransition(SKTransition.fade(withDuration: 1.0))
+        }
         
         if prize.position.y <= 0 {
-            if(!levelOver){
+            if(!hearts.isEmpty){
                 run(splashSoundAction)
+                hearts.popLast()??.removeFromParent()
+                if(!hearts.isEmpty){
+                    setUpPrize()
+                    setUpVines()
+                }
             }
-            switchToNewGameWithTransition(SKTransition.fade(withDuration: 1.0))
-            levelOver = true
+            
+            if hearts.isEmpty{
+                levelOver = true
+            }
         }
     }
     
@@ -182,10 +226,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             runNomNomAnimationWithDelay(0.15)
             run(nomNomSoundAction)
             // transition to next level
-            switchToNewGameWithTransition(SKTransition.doorway(withDuration: 1.0))
             let removeNode = SKAction.removeFromParent()
             let sequence = SKAction.sequence([shrink, removeNode])
             prize.run(sequence)
+            proceedToNextLevel()
         }
     }
     
@@ -215,6 +259,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             animateCrocodile()
         }
         vineCut = true
+    }
+    
+    fileprivate func proceedToNextLevel(){
+        //todo: do something here, perhaps set up a new level.
+        level += 1
+        setUpPrize()
+        setUpVines()
     }
     
     fileprivate func switchToNewGameWithTransition(_ transition: SKTransition) {
