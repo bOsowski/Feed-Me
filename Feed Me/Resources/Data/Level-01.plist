@@ -6,25 +6,9 @@
 		<key>relAnchorPoint</key>
 		<string>{.1187, .9383}</string>
 		<key>anchorPoint</key>
-		<string>{38,533}</string>
+		<string>{99938,5356456534633}</string>
 		<key>length</key>
-		<integer>25</integer>
-	</dict>
-	<dict>
-		<key>relAnchorPoint</key>
-		<string>{.8500, .8996}</string>
-		<key>anchorPoint</key>
-		<string>{272,511}</string>
-		<key>length</key>
-		<integer>18</integer>
-	</dict>
-	<dict>
-		<key>relAnchorPoint</key>
-		<string>{.8593, .7588}</string>
-		<key>anchorPoint</key>
-		<string>{275,431}</string>
-		<key>length</key>
-		<integer>16</integer>
+		<integer>50</integer>
 	</dict>
 </array>
 </plist>

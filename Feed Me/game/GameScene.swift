@@ -5,6 +5,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     private var crocodile: SKSpriteNode!
     private var prize: SKSpriteNode!
+    private var vines: [VineNode?] = []
     
     private var sliceSoundAction: SKAction!
     private var splashSoundAction: SKAction!
@@ -23,13 +24,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         }
     }
 
-    
     private var level: Int = 1{
         didSet{
             levelLabel.text = "Level: \(level)"
         }
     }
-
     
     private var levelOver = false
     private var vineCut = false
@@ -119,24 +118,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     //MARK: - Vine methods
     
     fileprivate func setUpVines() {
-        // 1 load vine data
-        let dataFile = Bundle.main.path(forResource: GameConfiguration.VineDataFile, ofType: nil)
-        let vines = NSArray(contentsOfFile: dataFile!) as! [NSDictionary]
-        
-        // 2 add vines
-        for i in 0..<vines.count {
-            // 3 create vine
-            let vineData = vines[i]
-            let length = Int(truncating: vineData["length"] as! NSNumber)
-            let relAnchorPoint = NSCoder.cgPoint(for: vineData["relAnchorPoint"] as! String)
-            let anchorPoint = CGPoint(x: relAnchorPoint.x * size.width,
-                                      y: relAnchorPoint.y * size.height)
-            let vine = VineNode(length: length, anchorPoint: anchorPoint, name: "\(i)")
-            
-            // 4 add to scene
+//        // 1 load vine data
+//        let dataFile = Bundle.main.path(forResource: GameConfiguration.VineDataFile, ofType: nil)
+//        let vines = NSArray(contentsOfFile: dataFile!) as! [NSDictionary]
+//
+//        // 2 add vines
+//        for i in 0..<vines.count {
+//            // 3 create vine
+//            let vineData = vines[i]
+//            let length = Int(truncating: vineData["length"] as! NSNumber)
+//            let relAnchorPoint = NSCoder.cgPoint(for: vineData["relAnchorPoint"] as! String)
+//            let anchorPoint = CGPoint(x: relAnchorPoint.x * size.width,
+//                                      y: relAnchorPoint.y * size.height)
+//            let vine = VineNode(length: length, anchorPoint: anchorPoint, name: "\(i)")
+//
+//            // 4 add to scene
+//            vine.addToScene(self)
+//
+//            // 5 connect the other end of the vine to the prize
+//            vine.attachToPrize(prize)
+//        }
+        removeChildren(in: vines as! [SKNode])
+        for vine in generateRandomLevel(){
+            vines.append(vine)
             vine.addToScene(self)
-            
-            // 5 connect the other end of the vine to the prize
             vine.attachToPrize(prize)
         }
     }
@@ -289,7 +294,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     fileprivate func proceedToNextLevel(){
-        //todo: do something here, perhaps set up a new level.
         score += Int(25 - timer)
         level += 1
         setUpPrize()
