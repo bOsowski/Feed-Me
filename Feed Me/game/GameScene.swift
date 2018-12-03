@@ -227,7 +227,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         }
         
         if levelOver {
-            switchToNewGameWithTransition(SKTransition.fade(withDuration: 1.0))
+            goToMainMenu(SKTransition.fade(withDuration: 1.0))
         }
         
         if prize.position.y <= 0 {
@@ -266,7 +266,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     fileprivate func checkIfVineCutWithBody(_ body: SKPhysicsBody) {
-        if vineCut && !GameConfiguration.CanCutMultipleVinesAtOnce {
+        if vineCut && !OptionsScene.CanCutMultipleVinesAtOnce {
             return
         }
         
@@ -301,11 +301,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         timer = 0
     }
     
-    fileprivate func switchToNewGameWithTransition(_ transition: SKTransition) {
+    fileprivate func goToMainMenu(_ transition: SKTransition) {
         let delay = SKAction.wait(forDuration: 1)
         let sceneChange = SKAction.run({
-            let scene = GameScene(size: self.size)
-            self.view?.presentScene(scene, transition: transition)
+            let transition = SKTransition.flipHorizontal(withDuration: 0.5)
+            let menuScene = MenuScene(fileNamed: "MenuScene")
+            menuScene!.scaleMode = .aspectFill
+            self.view?.presentScene(menuScene!, transition: transition)
         })
         
         run(SKAction.sequence([delay, sceneChange]))

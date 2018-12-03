@@ -40,5 +40,4 @@ struct SoundFile {
 
 struct GameConfiguration {
     static let VineDataFile = "Level-01.plist"
-    static let CanCutMultipleVinesAtOnce = false
 }

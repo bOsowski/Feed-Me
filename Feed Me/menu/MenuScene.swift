@@ -25,14 +25,16 @@ class MenuScene : SKScene{
         
         if let location = touch?.location(in: self){
             let nodesArray = self.nodes(at: location)
-            
+            let transition = SKTransition.flipHorizontal(withDuration: 0.5)
+
             if nodesArray.contains(newGameButton){
-                let transition = SKTransition.flipHorizontal(withDuration: 0.5)
                 let gameScene = GameScene(size: self.size)
                 self.view?.presentScene(gameScene, transition: transition)
             }
             else if nodesArray.contains(optionsButton){
-                
+                let optionsScene = OptionsScene(fileNamed: "OptionsScene")
+                optionsScene!.scaleMode = .aspectFill
+                self.view?.presentScene(optionsScene!, transition: transition)
             }
         }
     }
