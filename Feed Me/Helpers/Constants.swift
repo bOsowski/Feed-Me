@@ -37,7 +37,3 @@ struct SoundFile {
     static let Splash = "Splash.caf"
     static let NomNom = "NomNom.caf"
 }
-
-struct GameConfiguration {
-    static let VineDataFile = "Level-01.plist"
-}

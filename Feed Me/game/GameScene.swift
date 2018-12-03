@@ -118,26 +118,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     //MARK: - Vine methods
     
     fileprivate func setUpVines() {
-//        // 1 load vine data
-//        let dataFile = Bundle.main.path(forResource: GameConfiguration.VineDataFile, ofType: nil)
-//        let vines = NSArray(contentsOfFile: dataFile!) as! [NSDictionary]
-//
-//        // 2 add vines
-//        for i in 0..<vines.count {
-//            // 3 create vine
-//            let vineData = vines[i]
-//            let length = Int(truncating: vineData["length"] as! NSNumber)
-//            let relAnchorPoint = NSCoder.cgPoint(for: vineData["relAnchorPoint"] as! String)
-//            let anchorPoint = CGPoint(x: relAnchorPoint.x * size.width,
-//                                      y: relAnchorPoint.y * size.height)
-//            let vine = VineNode(length: length, anchorPoint: anchorPoint, name: "\(i)")
-//
-//            // 4 add to scene
-//            vine.addToScene(self)
-//
-//            // 5 connect the other end of the vine to the prize
-//            vine.attachToPrize(prize)
-//        }
         removeChildren(in: vines as! [SKNode])
         for vine in generateRandomLevel(){
             vines.append(vine)
