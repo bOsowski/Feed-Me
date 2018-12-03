@@ -12,6 +12,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     private var hearts: [SKSpriteNode?] = []
     private var levelLabel: SKLabelNode!
+    private var scoreLabel: SKLabelNode!
+    
+    private var lastDeltaTime: TimeInterval = 0
+    
+    private var timer: Double = 0
+    private var score: Int = 0{
+        didSet{
+            scoreLabel.text = "Score: \(score)"
+        }
+    }
+
     
     private var level: Int = 1{
         didSet{
@@ -38,9 +49,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     fileprivate func setUpHUD() {
         levelLabel = SKLabelNode(text: "Level: \(level)")
         levelLabel.fontSize = 62
-        levelLabel.position = CGPoint(x: 150, y: 1240)
+        levelLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        levelLabel.position = CGPoint(x: 25, y: 1240)
         levelLabel.zPosition = Layer.HUD
         addChild(levelLabel)
+        
+        scoreLabel = SKLabelNode(text: "Score: \(score)")
+        scoreLabel.fontSize = 62
+        scoreLabel.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        scoreLabel.position = CGPoint(x: 25, y: 1150)
+        scoreLabel.zPosition = Layer.HUD
+        addChild(scoreLabel)
+        
         let firstHeart = SKSpriteNode(imageNamed: ImageName.Heart)
         let secondHeart = SKSpriteNode(imageNamed: ImageName.Heart)
         let thirdHeart = SKSpriteNode(imageNamed: ImageName.Heart)
@@ -195,15 +215,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     //MARK: - Game logic
     
     override func update(_ currentTime: TimeInterval) {
+        //calculating delta time
+        let deltaTime = currentTime - lastDeltaTime
+        if lastDeltaTime != 0 { //don't add the initial delta time if last time has not beed set. (This would result in a huge timer value.)
+            timer += deltaTime
+        }
+        
         if levelOver {
             switchToNewGameWithTransition(SKTransition.fade(withDuration: 1.0))
         }
         
         if prize.position.y <= 0 {
-            if(!hearts.isEmpty){
+            if !hearts.isEmpty {
                 run(splashSoundAction)
                 hearts.popLast()??.removeFromParent()
-                if(!hearts.isEmpty){
+                if !hearts.isEmpty{
                     setUpPrize()
                     setUpVines()
                 }
@@ -213,6 +239,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
                 levelOver = true
             }
         }
+        lastDeltaTime = currentTime
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -263,9 +290,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     fileprivate func proceedToNextLevel(){
         //todo: do something here, perhaps set up a new level.
+        score += Int(25 - timer)
         level += 1
         setUpPrize()
         setUpVines()
+        timer = 0
     }
     
     fileprivate func switchToNewGameWithTransition(_ transition: SKTransition) {
